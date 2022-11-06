@@ -1,0 +1,25 @@
+#!/bin/bash
+
+#BSUB -P YOUR_PROJECT
+#BSUB -W 00:10
+#BSUB -nnodes 1
+#BSUB -alloc_flags gpumps
+#BSUB -J elpa
+#BSUB -o elpa.%J
+#BSUB -N
+#BSUB -q debug
+
+module unload darshan-runtime
+
+export OMP_NUM_THREADS=1
+export LD_LIBRARY_PATH=/path/to/elpa/build/lib:$LD_LIBRARY_PATH
+
+dim=17000
+vec=17000
+blk=64
+
+export ELPA_DEFAULT_solver=ELPA_SOLVER_2STAGE
+export ELPA_DEFAULT_complex_kernel=ELPA_2STAGE_COMPLEX_NVIDIA_GPU
+#export ELPA_DEFAULT_nvidia-gpu=1
+
+env 'ELPA_DEFAULT_nvidia-gpu=1' jsrun -n 2 -a 12 -c 12 -g 2 -r 2 ./test_mpi_cmplx.x $dim $vec $blk > 1.out
